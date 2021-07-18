@@ -41,6 +41,8 @@ class ShortenUrlController extends Controller
         $message = empty($planUser->available_limit) ? 'Sorry, Limit Exhausted!' : Null; 
         
         if(!empty($message)) {
+            \Session::flash('alert-class', 'alert-danger');
+            \Session::flash('message',$message); 
             return json_encode(['fail'=> $message]);
         }
    
@@ -52,6 +54,9 @@ class ShortenUrlController extends Controller
         $planUser->available_limit--;
         $planUser->used_limit++;
         $planUser->save();
+
+        \Session::flash('message','Shorten Link Generated Successfully!'); 
+        \Session::flash('alert-class', 'alert-success');
   
         return json_encode(['success'=> 'Shorten Link Generated Successfully!']);
     }
@@ -78,6 +83,8 @@ class ShortenUrlController extends Controller
             return json_encode(['success'=> 'Shorten Link Deleted Successfully!']);
         } 
 
+        \Session::flash('alert-class', 'alert-danger');
+        \Session::flash('message','URL not Found!'); 
         return json_encode(['fail'=> 'Url not Found!']);        
     }
    
@@ -90,18 +97,33 @@ class ShortenUrlController extends Controller
 
         $shortenUrl = ShortenUrl::where('id', $request->url_id)->first();
 
+        $message ='Url not Found!';
+        \Session::flash('message',$message); 
+
         if(!empty($shortenUrl)){
 
-            if($shortenUrl->status == ShortenUrl::STATUS_DEACTIVATE)
+            if($shortenUrl->status == ShortenUrl::STATUS_DEACTIVATE){
+                \Session::flash('alert-class', 'alert-danger');
+                \Session::flash('message','Deleted Url can\'t be Activated/In-Activated again!'); 
+
                 return json_encode(['fail'=> 'Deleted Url can\'t be Activated/In-Activated again!']);
+            }
 
             $shortenUrl->status = ($shortenUrl->status == ShortenUrl::STATUS_ACTIVE) ? ShortenUrl::STATUS_INACTIVE : ShortenUrl::STATUS_ACTIVE;
             $shortenUrl->save();
 
-            return json_encode(['success'=> 'Shorten Link Deleted Successfully!']);
-        } 
+            $message = ($shortenUrl->status == ShortenUrl::STATUS_ACTIVE) ? 'Activated' : 'In-Activated';
+            $message = "Shorten Link {$message} Successfully!";
 
-        return json_encode(['fail'=> 'Url not Found!']);
+            \Session::flash('message',$message); 
+            \Session::flash('alert-class', 'alert-success');
+
+
+            return json_encode(['success'=> $message]);
+        } 
+        \Session::flash('alert-class', 'alert-danger'); 
+
+        return json_encode(['message'=> $message]);
         
     }
 
@@ -132,6 +154,9 @@ class ShortenUrlController extends Controller
             ]
         ]);
 
+        \Session::flash('message','Plan Upgraded Successfully!'); 
+        \Session::flash('alert-class', 'alert-success');
+
         return json_encode(['success'=> 'Plan Upgraded Successfully!']);        
     }
 
@@ -148,9 +173,15 @@ class ShortenUrlController extends Controller
         if(!empty($shortenUrl)) {
             $shortenUrl->url = $request->url;
             $shortenUrl->save();
+            
+            \Session::flash('message','URL Updated Successfully!'); 
+            \Session::flash('alert-class', 'alert-success');
+
             return json_encode(['success'=> 'URL Updated Successfully!']);
         }
         
+        \Session::flash('alert-class', 'alert-danger');
+        \Session::flash('message','URL not Found!'); 
         return json_encode(['fail'=> 'URL not Found!']);
     
     }

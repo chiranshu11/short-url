@@ -31,9 +31,10 @@ class AuthController extends Controller
 	    
         if (Auth::attempt($credentials)) {
             return redirect()->intended(route('dashboard'))
-                ->withSuccess('You have Successfully loggedin');
+                ->with('message','You have Successfully loggedin');
     	}
-    	return redirect("auth/login")->withSuccess('Oppes! You have entered invalid credentials');
+
+    	return redirect("auth/login")->with('message','Oppes! You have entered invalid credentials');
     }
 
     /**
@@ -90,24 +91,5 @@ class AuthController extends Controller
         Auth::logout();
   
         return Redirect('auth/login');
-    }
-
-    /**
-     * Write code on Method
-     *
-     * @return response()
-     */
-    public function dashboard()
-    {
-        if(Auth::check()){
-            return view('dashboard');
-        }
-  
-        return redirect("login")->withSuccess('Opps! You do not have access');
-    }
-
-    public function upgradePlan(Request $request)
-    {
-        
     }
 }

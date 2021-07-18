@@ -9,7 +9,7 @@
                   <div class="card-header">Login</div>
                   <div class="card-body">
                     @if (session('message'))
-                        <div class="alert alert-danger alert-dismissible fade in" role="alert" style="text-align:center;">
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="text-align:center;">
                             {{ session('message') }}
                         </div>
                     @endif

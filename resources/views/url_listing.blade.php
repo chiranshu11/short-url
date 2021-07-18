@@ -117,9 +117,9 @@
 </style>
 </head>
 <body class="clickup-chrome-ext_installed">
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+    {{-- <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
-    </form>
+    </form> --}}
         
 <div class="container-fluid">
     <!-- Toggler -->
@@ -163,14 +163,7 @@
                 </div>
             </a>
 
-            <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-right">
-                <div class="dropdown-divider"></div>
-                <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault();
-                document.getElementById('logout-form').submit();">
-                    <i class="ni ni-user-run"></i>
-                    <span>Logout</span>
-                </a>
-            </div>
+            
         </li>
     </ul>
     <!-- Collapse -->
@@ -316,10 +309,16 @@
     
 </div>
 </nav>    
+
+
 <div class="header bg-gradient-primary pb-8 pt-5 pt-md-8">
-    <div class="alert alert-danger" role="alert" style="padding: 10px; margin: -105px 30px 20px 30px;">
-        <strong>This is a PRO feature!</strong>
+@if(!empty(Session::get('message')))
+    <div class="alert {{ Session::get('alert-class', 'alert-info') }}" role="alert" style="padding: 10px; margin: -105px 30px 20px 30px;">
+        <strong>
+            {{ Session::get('message') }}
+        </strong>
       </div>
+@endif
 <div class="container-fluid">
     
     <div class="header-body">
@@ -461,10 +460,10 @@
                         @foreach($shortenUrls as $url)
                             <tr data-id = {{$url->id}}>
                                 <td class="long_url">
-                                    <div class="active" data-value = "{{$url->url}}">
+                                    <div class="active" data-value = "{{$url->url}}" data-id= "{{$url->id}}">
                                         <a href="{{$url->url}}" data-value ="{{$url->url}}" >{{$url->url}}</a>
                                     </div>
-                                    <div class="edit_url in-active" data-value = "{{$url->url}}">
+                                    <div class="edit_url in-active" data-value = "{{$url->url}}" data-id= "{{$url->id}}">
                                         <div class="input-group input-group-alternative">
                                             <input class="form-control" placeholder="Enter URL" type="text" data-id = {{$url->id}}>
                                             <div class="icon icon-shape-success text-white box submit" data-id = {{$url->id}} >
@@ -492,7 +491,7 @@
                                             <i class="fas fa-ellipsis-v"></i>
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow" >
-                                            <a class="dropdown-item">Edit</a>
+                                            <a class="dropdown-item dropdown-edit">Edit</a>
                                             <a class="dropdown-item" onclick="change_status()">Activate / Deactivate</a>
                                             <a class="dropdown-item" onclick="delete_url()">Delete</a>
                                         </div>
@@ -553,13 +552,30 @@
 
         let url_id=null;
         let long_url=null;
-        $(".text-right .dropdown").on('click', function() {
-           url_id = ($(this).data("id"));
-           long_url = $(this).closest('tr').find('.long_url').find('.active').data('value');
-           // window.alert(long_url);
-           
+        $(document).ready(function(){
+            
+            $('.text-right .dropdown').on('click', function() {
+               url_id = $(this).data("id");
+               long_url = $(this).closest('tr').find('.long_url').find('.active').data('value');
+            });
+
+            
+            $(".text-right .dropdown .dropdown-menu-arrow").find('.dropdown-edit').on('click', function() {
+                $(this).closest('tr').find('.long_url').find('.active').removeClass('active').addClass('in-active');
+                $(this).closest('tr').find('.long_url').find('.edit_url').addClass('active').removeClass('in-active');
+            });
+            
+            
+
+
+            $(".text-right .dropdown .dropdown-menu").closest('tr').find('.long_url').find('div.edit_url').find('.submit').on('click', function() {
+                var new_url = $(this).siblings('input').val();
+                var selected_url_id = $(this).data('id');
+                edit_url(new_url, selected_url_id);
+            });
         });
 
+        
         function store_url() {
             $.ajax({
                 type: 'POST',
@@ -583,7 +599,6 @@
                 type: 'POST',
                 data: {
                     'url_id': url_id,
-                    'url'   : long_url,
                     '_token': '{{csrf_token()}}'
                 },
                 url: 'http://safeg-gold.test/user/update_url_status',
@@ -602,7 +617,6 @@
                 type: 'POST',
                 data: {
                     'url_id': url_id,
-                    'url'   : long_url,
                     '_token': '{{csrf_token()}}'
                 },
                 url: 'http://safeg-gold.test/user/delete_url',
@@ -650,17 +664,6 @@
         }
 
     
-    $(".text-right .dropdown .dropdown-menu").closest('tr').find('.long_url').find('div.edit_url').on('click', function() {
-        $(this).closest('tr').find('.long_url').find('.active').removeClass('active').addClass('in-active');
-        $(this).closest('tr').find('.long_url').find('.edit_url').addClass('active').removeClass('in-active');
-        
-    })
-
-    $(".text-right .dropdown .dropdown-menu").closest('tr').find('.long_url').find('div.edit_url').find('.submit').on('click', function() {
-        var new_url = $(this).siblings('input').val();
-        var selected_url_id = $(this).data('id');
-        edit_url(new_url, selected_url_id);
-    })
     function edit_url(new_url, selected_url_id) {
         $.ajax({
             type: 'POST',
