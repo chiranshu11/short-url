@@ -1,0 +1,27 @@
+{
+    "name": "saineshmamgain/laravel-setup-helper",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sainesh Mamgain",
+            "email": "saineshmamgain@gmail.com"
+        }
+    ],
+    "require": {
+        "laravel/framework": ">=v6.0.0"
+    },
+    "description": "A package to setup basic functionality to a new laravel installation",
+    "autoload": {
+        "psr-4": {
+            "SaineshMamgain\\SetupHelper\\" : "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SaineshMamgain\\SetupHelper\\SetupHelperServiceProvider"
+            ]
+        }
+    }
+}
