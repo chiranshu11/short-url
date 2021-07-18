@@ -136,6 +136,7 @@ class ShortenUrlController extends Controller
         $user = auth()->user();
         $cuurentPlanUser = $user->activePlan()->pivot;
         $cuurentPlanUser->is_active = PlanUser::STATUS_INACTIVE;
+        $cuurentPlanUser->save();
 
         $plan = Plan::where('id','=',$request->plan_id)->first();
 
@@ -146,12 +147,12 @@ class ShortenUrlController extends Controller
          * }
          */
 
-        $user->plans()->sync([
-            $plan->id => [
-                'available_limit' => $plan->url_limit - $cuurentPlanUser->used_limit,
-                'used_limit' => $cuurentPlanUser->used_limit,
-                'is_active' => PlanUser::STATUS_ACTIVE
-            ]
+        PlanUser::create([
+            'user_id' => $user->id,
+            'plan_id' => $plan->id,
+            'available_limit' => $plan->url_limit - $cuurentPlanUser->used_limit,
+            'used_limit' => $cuurentPlanUser->used_limit,
+            'is_active' => PlanUser::STATUS_ACTIVE,
         ]);
 
         \Session::flash('message','Plan Upgraded Successfully!'); 

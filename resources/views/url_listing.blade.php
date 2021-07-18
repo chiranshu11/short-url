@@ -549,7 +549,7 @@
 
     
     <script type="text/javascript">
-
+        let base_url = 'http://testing.test';
         let url_id=null;
         let long_url=null;
         $(document).ready(function(){
@@ -565,9 +565,6 @@
                 $(this).closest('tr').find('.long_url').find('.edit_url').addClass('active').removeClass('in-active');
             });
             
-            
-
-
             $(".text-right .dropdown .dropdown-menu").closest('tr').find('.long_url').find('div.edit_url').find('.submit').on('click', function() {
                 var new_url = $(this).siblings('input').val();
                 var selected_url_id = $(this).data('id');
@@ -583,7 +580,7 @@
                     'url': document.getElementById('store_url').value,
                     '_token': '{{csrf_token()}}'
                 },
-                url: 'http://safeg-gold.test/user/store_url',
+                url: base_url + '/user/store_url',
                 success: function(data){
                     window.location.reload();
                 },
@@ -594,14 +591,13 @@
         }
 
         function change_status() {
-            
             $.ajax({
                 type: 'POST',
                 data: {
                     'url_id': url_id,
                     '_token': '{{csrf_token()}}'
                 },
-                url: 'http://safeg-gold.test/user/update_url_status',
+                url: base_url + '/user/update_url_status',
                 success: function(data){
                     // window.alert(JSON.parse(data).fail);
                     window.location.reload();
@@ -619,7 +615,7 @@
                     'url_id': url_id,
                     '_token': '{{csrf_token()}}'
                 },
-                url: 'http://safeg-gold.test/user/delete_url',
+                url: base_url + '/user/delete_url',
                 success: function(data){
                     window.location.reload();
                 },
@@ -637,7 +633,7 @@
                     'plan_id': 2,
                     '_token': '{{csrf_token()}}'
                 },
-                url: 'http://safeg-gold.test/user/upgrade_plan',
+                url: base_url + '/user/upgrade_plan',
                 success: function(data){
                     window.location.reload();
                 },
@@ -653,7 +649,7 @@
                 data: {
                     '_token': '{{csrf_token()}}'
                 },
-                url: 'http://safeg-gold.test/auth/logout',
+                url: base_url + '/auth/logout',
                 success: function(data){
                     window.location.reload();
                 },
@@ -672,7 +668,7 @@
                 'url_id': selected_url_id,
                 '_token': '{{csrf_token()}}'
             },
-            url: 'http://safeg-gold.test/user/edit_url',
+            url: base_url + '/user/edit_url',
             success: function(data){
                 window.location.reload();
             },
