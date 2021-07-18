@@ -59,13 +59,12 @@ class ShortenUrlController extends Controller
     public function delete(Request $request)
     {
         $request->validate([
-           'url_id' => 'required',
-           'url' => 'required|url'
+           'url_id' => 'required'
         ]);
 
         $shortenUrl = ShortenUrl::where('id', intval($request->url_id))->first();
 
-        if(!empty($shortenUrl) && $shortenUrl->url == $request->url){
+        if(!empty($shortenUrl)){
             $shortenUrl->status = ShortenUrl::STATUS_DEACTIVATE;
             $shortenUrl->delete();
             $shortenUrl->save();
@@ -86,18 +85,17 @@ class ShortenUrlController extends Controller
     public function updateStatus(Request $request)
     {
         $request->validate([
-           'url_id' => 'required',
-           'url' => 'required|url'
+           'url_id' => 'required'
         ]);
 
         $shortenUrl = ShortenUrl::where('id', $request->url_id)->first();
 
-        if(!empty($shortenUrl) && $shortenUrl->url == $request->url){
+        if(!empty($shortenUrl)){
 
             if($shortenUrl->status == ShortenUrl::STATUS_DEACTIVATE)
                 return json_encode(['fail'=> 'Deleted Url can\'t be Activated/In-Activated again!']);
 
-            $shortenUrl->status = $shortenUrl->status == ShortenUrl::STATUS_ACTIVE ? ShortenUrl::STATUS_INACTIVE : ShortenUrl::STATUS_ACTIVE;
+            $shortenUrl->status = ($shortenUrl->status == ShortenUrl::STATUS_ACTIVE) ? ShortenUrl::STATUS_INACTIVE : ShortenUrl::STATUS_ACTIVE;
             $shortenUrl->save();
 
             return json_encode(['success'=> 'Shorten Link Deleted Successfully!']);
@@ -110,7 +108,6 @@ class ShortenUrlController extends Controller
     public function upgradePlan(Request $request)
     {
         $request->validate([
-           'user_id' => 'required',
            'plan_id' => 'required'
         ]);
 
@@ -120,9 +117,12 @@ class ShortenUrlController extends Controller
 
         $plan = Plan::where('id','=',$request->plan_id)->first();
 
-        if($cuurentPlanUser->used_limit > $plan->url_limit){
-            return json_encode(['fail'=> 'Already exhausted'.$plan->name.'\'s! limit']);
-        }
+        /* 
+         * for future reference 
+         * if($cuurentPlanUser->used_limit > $plan->url_limit){
+         *     return json_encode(['fail'=> 'Already exhausted'.$plan->name.'\'s! limit']);
+         * }
+         */
 
         $user->plans()->sync([
             $plan->id => [
@@ -132,9 +132,7 @@ class ShortenUrlController extends Controller
             ]
         ]);
 
-        return json_encode(['success'=> 'Plan Upgraded Successfully!']);
-        
-        
+        return json_encode(['success'=> 'Plan Upgraded Successfully!']);        
     }
 
     public function editUrl(Request $request)
